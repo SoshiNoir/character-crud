@@ -1,8 +1,8 @@
-'use client'; // Marca como cliente, necessário para o uso de hooks e navegação
+'use client';
 
 import Link from 'next/link';
 import React, { useState } from 'react';
-import { HiSearch } from 'react-icons/hi'; // Ícone de pesquisa
+import { HiSearch } from 'react-icons/hi';
 
 const Header = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -31,7 +31,7 @@ const Header = () => {
           </Link>
         </div>
 
-        {/* Barra de pesquisa centralizada */}
+        {/* Barra de pesquisa*/}
         <div className='flex-grow flex justify-center'>
           <div className='relative w-full max-w-lg'>
             <input
