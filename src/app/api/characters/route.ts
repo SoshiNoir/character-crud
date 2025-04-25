@@ -1,29 +1,47 @@
-// Arquivo: src/app/api/characters/route.ts (Next.js 13+ app directory)
-import { prisma } from '@/lib/prisma';
-import { NextResponse } from 'next/server';
+import { PrismaClient } from '@prisma/client'
+import { NextRequest, NextResponse } from 'next/server'
 
-// GET - Lista todos os personagens
+const prisma = new PrismaClient()
+
 export async function GET() {
-  const characters = await prisma.character.findMany({
-    include: { posts: true },
-  });
-  return NextResponse.json(characters);
+  try {
+    const characters = await prisma.character.findMany()
+    return NextResponse.json(characters)
+  } catch (error) {
+    console.error('Erro ao buscar personagem:', error)
+    return NextResponse.json({ error: 'Erro ao buscar personagens' }, { status: 500 })
+  } finally {
+    await prisma.$disconnect()
+  }
 }
 
-// POST - Cria um novo personagem
-export async function POST(req: Request) {
-  const body = await req.json();
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json()
+    const { name, profession, likes, dislikes, description, image, posts, createdAt } = body
 
-  const newCharacter = await prisma.character.create({
-    data: {
-      name: body.name,
-      profession: body.profession,
-      likes: body.likes,
-      dislikes: body.dislikes,
-      description: body.description,
-      image: body.image || '',
-    },
-  });
+    if (!name || !profession || !likes || !dislikes || !description || !image) {
+      return NextResponse.json({ error: 'Nome e email são obrigatórios' }, { status: 400 })
+    }
 
-  return NextResponse.json(newCharacter);
+    const newUser = await prisma.character.create({
+      data: {
+        name,
+        profession,
+        likes,
+        dislikes,
+        description,
+        image,
+        posts,
+        createdAt,
+      },
+    })
+
+    return NextResponse.json(newUser, { status: 201 })
+  } catch (error) {
+    console.error('Erro ao criar usuário:', error)
+    return NextResponse.json({ error: 'Erro ao criar usuário' }, { status: 500 })
+  } finally {
+    await prisma.$disconnect()
+  }
 }
