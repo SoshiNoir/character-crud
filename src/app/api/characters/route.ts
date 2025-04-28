@@ -1,30 +1,50 @@
-import { PrismaClient } from '@prisma/client'
-import { NextRequest, NextResponse } from 'next/server'
+import { PrismaClient } from '@prisma/client';
+import { NextRequest, NextResponse } from 'next/server';
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
-export async function GET() {
+// GET: Listar todos os personagens com paginação
+export async function GET(request: NextRequest) {
   try {
-    const characters = await prisma.character.findMany()
-    return NextResponse.json(characters)
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const limit = 9;
+    const skip = (page - 1) * limit;
+
+    const characters = await prisma.character.findMany({
+      skip,
+      take: limit,
+    });
+
+    const totalCharacters = await prisma.character.count();
+
+    return NextResponse.json({
+      characters,
+      total: totalCharacters,
+      page,
+      totalPages: Math.ceil(totalCharacters / limit),
+    });
   } catch (error) {
-    console.error('Erro ao buscar personagem:', error)
-    return NextResponse.json({ error: 'Erro ao buscar personagens' }, { status: 500 })
-  } finally {
-    await prisma.$disconnect()
+    console.error('Erro ao buscar personagens:', error);
+    return NextResponse.json({ error: 'Erro ao buscar personagens' }, { status: 500 });
   }
 }
 
+// POST: Criar um novo personagem
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { name, profession, likes, dislikes, description, image, posts, createdAt } = body
+    const body = await request.json();
+    const { name, profession, likes, dislikes, description, image } = body;
 
+    // Validação: Verifica se todos os campos obrigatórios estão presentes
     if (!name || !profession || !likes || !dislikes || !description || !image) {
-      return NextResponse.json({ error: 'Nome e email são obrigatórios' }, { status: 400 })
+      return NextResponse.json(
+        { error: 'Todos os campos são obrigatórios.' },
+        { status: 400 }
+      );
     }
 
-    const newUser = await prisma.character.create({
+    const newCharacter = await prisma.character.create({
       data: {
         name,
         profession,
@@ -32,16 +52,12 @@ export async function POST(request: NextRequest) {
         dislikes,
         description,
         image,
-        posts,
-        createdAt,
       },
-    })
+    });
 
-    return NextResponse.json(newUser, { status: 201 })
+    return NextResponse.json(newCharacter, { status: 201 });
   } catch (error) {
-    console.error('Erro ao criar usuário:', error)
-    return NextResponse.json({ error: 'Erro ao criar usuário' }, { status: 500 })
-  } finally {
-    await prisma.$disconnect()
+    console.error('Erro ao criar personagem:', error);
+    return NextResponse.json({ error: 'Erro ao criar personagem.' }, { status: 500 });
   }
 }
