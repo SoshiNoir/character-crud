@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { FaRegThumbsDown, FaRegThumbsUp } from 'react-icons/fa';
 
@@ -15,49 +15,63 @@ interface Character {
   image: string;
 }
 
-const characters: Character[] = [
-  {
-    id: 1,
-    name: 'Personagem 1',
-    profession: 'Guerreiro',
-    likes: 'Lutar, espadas, honra',
-    dislikes: 'Perder, magia, injustiça',
-    description: 'Personagem valente e destemido.',
-    image: '/images/character1.jpg',
-  },
-  {
-    id: 2,
-    name: 'Personagem 2',
-    profession: 'Mago',
-    likes: 'Magia',
-    dislikes: 'Injustiça',
-    description: 'Mestre das artes arcanas.',
-    image: '/images/character2.jpg',
-  },
-  {
-    id: 3,
-    name: 'Personagem 3',
-    profession: 'Arqueiro',
-    likes: 'Aventuras',
-    dislikes: 'Cegueira',
-    description: 'Mestre dos arcos e flechas.',
-    image: '/images/character3.jpg',
-  },
-];
-
 const CharacterDetailsPage = () => {
   const { id } = useParams();
+  const router = useRouter();
   const [character, setCharacter] = useState<Character | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [showDeletePopup, setShowDeletePopup] = useState(false);
 
   useEffect(() => {
+    const fetchCharacter = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = await fetch(`/api/characters/${id}`);
+        if (!response.ok) {
+          throw new Error('Erro ao carregar personagem.');
+        }
+
+        const data = await response.json();
+        setCharacter(data);
+      } catch (error) {
+        setError('Erro ao carregar personagem.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
     if (id) {
-      const characterId = Array.isArray(id) ? id[0] : id;
-      const characterData = characters.find(
-        (char) => char.id === parseInt(characterId)
-      );
-      setCharacter(characterData || null);
+      fetchCharacter();
     }
   }, [id]);
+
+  const handleDelete = async () => {
+    try {
+      const response = await fetch(`/api/characters/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Erro ao deletar personagem.');
+      }
+
+      alert('Personagem deletado com sucesso!');
+      router.push('/characters'); // Redireciona para a lista de personagens
+    } catch (error) {
+      alert('Erro ao deletar personagem.');
+    }
+  };
+
+  if (loading) {
+    return <p>Carregando...</p>;
+  }
+
+  if (error) {
+    return <p className='text-red-500'>{error}</p>;
+  }
 
   if (!character) {
     return <p>Personagem não encontrado</p>;
@@ -67,6 +81,8 @@ const CharacterDetailsPage = () => {
     <div className='container mx-auto p-4'>
       <h1 className='text-3xl font-bold mb-6'>{character.name}</h1>
       <div className='flex items-center border p-6 rounded-lg shadow-lg'>
+        <div></div>
+
         {/* Imagem do personagem */}
         <div className='w-1/3'>
           <Image
@@ -79,6 +95,7 @@ const CharacterDetailsPage = () => {
         </div>
 
         {/* Informações do personagem */}
+
         <div className='w-2/3 pl-6'>
           <p>
             <strong>Profissão:</strong> {character.profession}
@@ -95,7 +112,47 @@ const CharacterDetailsPage = () => {
             <strong>Descrição:</strong> {character.description}
           </p>
         </div>
+        {/* Botões de ação */}
+        <div className='mt-6 flex gap-4'>
+          <button
+            onClick={() => router.push(`/characters/${id}/edit`)}
+            className='bg-blue-500 text-white px-4 py-2 rounded'
+          >
+            Editar
+          </button>
+          <button
+            onClick={() => setShowDeletePopup(true)}
+            className='bg-red-500 text-white px-4 py-2 rounded'
+          >
+            Deletar
+          </button>
+        </div>
       </div>
+
+      {/* Pop-up de confirmação para deletar */}
+      {showDeletePopup && (
+        <div className='fixed inset-0 flex items-center justify-center bg-black bg-opacity-50'>
+          <div className='bg-white p-6 rounded shadow-lg'>
+            <p className='mb-4'>
+              Tem certeza que deseja deletar este personagem?
+            </p>
+            <div className='flex gap-4 items-center justify-center'>
+              <button
+                onClick={handleDelete}
+                className='bg-red-500 text-white px-4 py-2 rounded'
+              >
+                Confirmar
+              </button>
+              <button
+                onClick={() => setShowDeletePopup(false)}
+                className='bg-gray-300 text-gray-700 px-4 py-2 rounded'
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
