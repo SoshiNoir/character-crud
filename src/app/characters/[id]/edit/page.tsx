@@ -15,7 +15,8 @@ interface Character {
 }
 
 const EditCharacterPage = () => {
-  const { id } = useParams();
+  const params = useParams();
+  const id = params?.id?.toString(); // Certifique-se de que o ID é uma string
   const router = useRouter();
   const [character, setCharacter] = useState<Character | null>(null);
   const [loading, setLoading] = useState(false);
@@ -36,6 +37,10 @@ const EditCharacterPage = () => {
       setError(null);
 
       try {
+        if (!id) {
+          throw new Error('ID do personagem não encontrado.');
+        }
+
         const response = await fetch(`/api/characters/${id}`);
         if (!response.ok) {
           throw new Error('Erro ao carregar personagem.');
@@ -81,17 +86,21 @@ const EditCharacterPage = () => {
     setLoading(true);
 
     try {
+      if (!id) {
+        throw new Error('ID do personagem não encontrado.');
+      }
+
       let imageUrl = formData.image;
 
       // Se uma nova imagem foi selecionada, faça o upload
       if (newImage) {
-        const formData = new FormData();
-        formData.append('file', newImage);
-        formData.append('characterId', id); // Associa a imagem ao personagem
+        const uploadFormData = new FormData();
+        uploadFormData.append('file', newImage);
+        uploadFormData.append('characterId', id); // Certifique-se de que o ID está definido
 
         const uploadResponse = await fetch('/api/upload', {
           method: 'POST',
-          body: formData,
+          body: uploadFormData,
         });
 
         if (!uploadResponse.ok) {
