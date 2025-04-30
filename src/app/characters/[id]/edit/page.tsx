@@ -1,5 +1,6 @@
 'use client';
 
+import jwtDecode from 'jwt-decode';
 import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
@@ -12,6 +13,7 @@ interface Character {
   dislikes: string;
   description: string;
   image: string;
+  ownerId: number;
 }
 
 const EditCharacterPage = () => {
@@ -48,6 +50,17 @@ const EditCharacterPage = () => {
 
         const data = await response.json();
         setCharacter(data);
+
+        // Verifica se o usuário autenticado é o dono do personagem
+        const token = localStorage.getItem('token');
+        if (token) {
+          const decoded: { userId: number } = jwtDecode(token);
+          if (decoded.userId !== data.ownerId) {
+            alert('Você não tem permissão para editar este personagem.');
+            router.push('/characters'); // Redireciona para a lista de personagens
+          }
+        }
+
         setFormData({
           name: data.name,
           profession: data.profession,
@@ -66,7 +79,7 @@ const EditCharacterPage = () => {
     if (id) {
       fetchCharacter();
     }
-  }, [id]);
+  }, [id, router]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>

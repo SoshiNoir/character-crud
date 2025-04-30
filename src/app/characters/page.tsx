@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 interface Character {
@@ -15,6 +16,8 @@ interface Character {
 }
 
 const CharactersPage = () => {
+  const searchParams = useSearchParams();
+  const searchQuery = searchParams.get('search') || ''; // Captura o parâmetro "search" da URL
   const [characters, setCharacters] = useState<Character[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -27,7 +30,9 @@ const CharactersPage = () => {
       setError(null);
 
       try {
-        const response = await fetch(`/api/characters?page=${page}`);
+        const response = await fetch(
+          `/api/characters?search=${searchQuery}&page=${page}`
+        );
         if (!response.ok) {
           throw new Error('Erro ao carregar personagens.');
         }
@@ -43,7 +48,7 @@ const CharactersPage = () => {
     };
 
     fetchCharacters();
-  }, [page]);
+  }, [searchQuery, page]);
 
   const handleNextPage = () => {
     if (page < totalPages) {
@@ -59,7 +64,11 @@ const CharactersPage = () => {
 
   return (
     <div className='container mx-auto p-4'>
-      <h1 className='text-3xl font-bold mb-6'>Lista de Personagens</h1>
+      <h1 className='text-3xl font-bold mb-6'>
+        {searchQuery
+          ? `Resultados para "${searchQuery}"`
+          : 'Lista de Personagens'}
+      </h1>
 
       {loading && <p>Carregando...</p>}
       {error && <p className='text-red-500'>{error}</p>}

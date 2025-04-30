@@ -1,32 +1,41 @@
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 
 const prisma = new PrismaClient();
 
-// GET: Listar todos os personagens com paginação
+
 export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const search = searchParams.get('search') || ''; 
+  const page = parseInt(searchParams.get('page') || '1'); // Captura o parâmetro "page"
+  const pageSize = 10; // Define o número de itens por página
+
   try {
-    const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get('page') || '1', 10);
-    const limit = 9;
-    const skip = (page - 1) * limit;
+    // Filtro de busca
+    const where = search
+      ? {
+        name: {
+          contains: search,
+          mode: Prisma.QueryMode.insensitive, // Corrigido para usar "insensitive" em minúsculas
+        },
+      }
+      : {};
 
+    // Busca os personagens com paginação
     const characters = await prisma.character.findMany({
-      skip,
-      take: limit,
+      where,
+      skip: (page - 1) * pageSize,
+      take: pageSize,
     });
 
-    const totalCharacters = await prisma.character.count();
+    // Conta o total de personagens para calcular o número de páginas
+    const totalCharacters = await prisma.character.count({ where });
+    const totalPages = Math.ceil(totalCharacters / pageSize);
 
-    return NextResponse.json({
-      characters,
-      total: totalCharacters,
-      page,
-      totalPages: Math.ceil(totalCharacters / limit),
-    });
+    return NextResponse.json({ characters, totalPages });
   } catch (error) {
     console.error('Erro ao buscar personagens:', error);
-    return NextResponse.json({ error: 'Erro ao buscar personagens' }, { status: 500 });
+    return NextResponse.json({ error: 'Erro ao buscar personagens.' }, { status: 500 });
   }
 }
 
