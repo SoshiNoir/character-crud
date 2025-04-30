@@ -147,89 +147,110 @@ const EditCharacterPage = () => {
 
   return (
     <div className='container mx-auto p-4'>
-      <h1 className='text-3xl font-bold mb-6'>Editar Personagem</h1>
-      <form onSubmit={handleSubmit} className='space-y-4'>
-        <div>
-          <label className='block font-bold mb-1'>Nome</label>
-          <input
-            type='text'
-            name='name'
-            value={formData.name}
-            onChange={handleChange}
-            className='w-full border p-2 rounded'
-            required
-          />
-        </div>
-        <div>
-          <label className='block font-bold mb-1'>Profissão</label>
-          <input
-            type='text'
-            name='profession'
-            value={formData.profession}
-            onChange={handleChange}
-            className='w-full border p-2 rounded'
-            required
-          />
-        </div>
-        <div>
-          <label className='block font-bold mb-1'>Likes</label>
-          <input
-            type='text'
-            name='likes'
-            value={formData.likes}
-            onChange={handleChange}
-            className='w-full border p-2 rounded'
-            required
-          />
-        </div>
-        <div>
-          <label className='block font-bold mb-1'>Dislikes</label>
-          <input
-            type='text'
-            name='dislikes'
-            value={formData.dislikes}
-            onChange={handleChange}
-            className='w-full border p-2 rounded'
-            required
-          />
-        </div>
-        <div>
-          <label className='block font-bold mb-1'>Descrição</label>
-          <textarea
-            name='description'
-            value={formData.description}
-            onChange={handleChange}
-            className='w-full border p-2 rounded'
-            required
-          />
-        </div>
-        <div>
-          <label className='block font-bold mb-1'>Imagem Atual</label>
-          <Image
-            src={formData.image}
-            alt='Imagem atual'
-            className='w-32 h-32 object-cover rounded mb-4'
-            width={300}
-            height={300}
-          />
-        </div>
-        <div>
-          <label className='block font-bold mb-1'>Nova Imagem (opcional)</label>
-          <input
-            type='file'
-            accept='image/*'
-            onChange={handleImageChange}
-            className='w-full border p-2 rounded'
-          />
-        </div>
-        <button
-          type='submit'
-          className='bg-blue-500 text-white px-4 py-2 rounded'
-          disabled={loading}
-        >
-          {loading ? 'Salvando...' : 'Salvar'}
-        </button>
-      </form>
+      <div className='bg-white p-6 rounded-lg shadow-lg'>
+        <h1 className='text-3xl font-bold mb-6'>Editar Personagem</h1>
+        <form onSubmit={handleSubmit} className='space-y-4'>
+          {/* Card para o campo Nome */}
+          <div className='bg-gray-100 p-4 rounded-lg shadow'>
+            <label className='block font-bold mb-1'>Nome</label>
+            <input
+              type='text'
+              name='name'
+              value={formData.name}
+              onChange={handleChange}
+              className='w-full border p-2 rounded'
+              required
+            />
+          </div>
+
+          {/* Card para o campo Profissão */}
+          <div className='bg-gray-100 p-4 rounded-lg shadow'>
+            <label className='block font-bold mb-1'>Profissão</label>
+            <input
+              type='text'
+              name='profession'
+              value={formData.profession}
+              onChange={handleChange}
+              className='w-full border p-2 rounded'
+              required
+            />
+          </div>
+
+          {/* Card para o campo Likes */}
+          <div className='bg-gray-100 p-4 rounded-lg shadow'>
+            <label className='block font-bold mb-1'>Likes</label>
+            <input
+              type='text'
+              name='likes'
+              value={formData.likes}
+              onChange={handleChange}
+              className='w-full border p-2 rounded'
+              required
+            />
+          </div>
+
+          {/* Card para o campo Dislikes */}
+          <div className='bg-gray-100 p-4 rounded-lg shadow'>
+            <label className='block font-bold mb-1'>Dislikes</label>
+            <input
+              type='text'
+              name='dislikes'
+              value={formData.dislikes}
+              onChange={handleChange}
+              className='w-full border p-2 rounded'
+              required
+            />
+          </div>
+
+          {/* Card para o campo Descrição */}
+          <div className='bg-gray-100 p-4 rounded-lg shadow'>
+            <label className='block font-bold mb-1'>Descrição</label>
+            <textarea
+              name='description'
+              value={formData.description}
+              onChange={handleChange}
+              className='w-full border p-2 rounded'
+              required
+            />
+          </div>
+
+          {/* Card para a imagem atual */}
+          <div className='bg-gray-100 p-4 rounded-lg shadow'>
+            <label className='block font-bold mb-1'>Imagem Atual</label>
+            <Image
+              src={formData.image}
+              alt='Imagem atual'
+              className='w-32 h-32 object-cover rounded mb-4'
+              width={300}
+              height={300}
+            />
+          </div>
+
+          {/* Card para a nova imagem */}
+          <div className='bg-gray-100 p-4 rounded-lg shadow'>
+            <label className='block font-bold mb-1'>
+              Nova Imagem (opcional)
+            </label>
+            <input
+              type='file'
+              accept='image/*'
+              onChange={handleImageChange}
+              className='w-full border p-2 rounded'
+            />
+          </div>
+
+          {/* Botão de salvar */}
+          <div className='bg-gray-100 p-4 rounded-lg shadow'>
+            <button
+              type='submit'
+              className='bg-color-200 hover:bg-color-100 text-white px-4 py-2 rounded'
+              disabled={loading}
+            >
+              {loading ? 'Salvando...' : 'Salvar'}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };
