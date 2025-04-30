@@ -7,6 +7,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id       Int     @id @default(autoincrement())
+  email    String  @unique
+  password String
+  characters Character[] // Relacionamento com personagens, se necessário
+}
+
 model Character {
   id          Int       @id @default(autoincrement())
   name        String
@@ -15,6 +22,8 @@ model Character {
   dislikes    String
   description String
   image       String
+  ownerId     Int
+  owner       User      @relation(fields: [ownerId], references: [id]) // Relacionamento com o dono
   posts       Post[]
   createdAt   DateTime  @default(now())
 }
