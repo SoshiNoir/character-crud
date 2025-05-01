@@ -1,14 +1,26 @@
 'use client';
 
+import Button from '@/components/Button';
 import Image from 'next/image';
 import Link from 'next/link';
-import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
+import { FaUserCircle } from 'react-icons/fa';
+import { FiLogOut } from 'react-icons/fi';
 import { HiSearch } from 'react-icons/hi';
 
 const Header = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    // Verifica se o token existe no localStorage
+    const token = localStorage.getItem('token');
+    setIsLoggedIn(!!token);
+  }, []);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const term = e.target.value;
@@ -44,6 +56,12 @@ const Header = () => {
     setShowDropdown(false);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('token'); // Remove o token do localStorage
+    setIsLoggedIn(false); // Atualiza o estado
+    router.push('/login'); // Redireciona para a página de login
+  };
+
   return (
     <header className='bg-color-300 text-white shadow-lg p-4'>
       <div className='container flex items-center'>
@@ -53,12 +71,22 @@ const Header = () => {
           </Link>
         </div>
         <div className='flex space-x-6 ml-10'>
-          <Link href='/' className='text-white hover:text-gray-200'>
+          <Button
+            onClick={() => router.push('/')}
+            bgColor='bg-color-200'
+            hoverColor='hover:bg-color-100'
+            textColor='text-white'
+          >
             Home
-          </Link>
-          <Link href='/characters' className='text-white hover:text-gray-200'>
+          </Button>
+          <Button
+            onClick={() => router.push('/characters')}
+            bgColor='bg-color-200'
+            hoverColor='hover:bg-color-100'
+            textColor='text-white'
+          >
             Personagens
-          </Link>
+          </Button>
         </div>
         <div className='flex-grow flex justify-center'>
           <div className='relative w-full max-w-lg'>
@@ -109,6 +137,43 @@ const Header = () => {
               </div>
             )}
           </div>
+        </div>
+        <div className='ml-auto flex items-center space-x-4'>
+          {/* Botão Criar */}
+          <Button
+            onClick={() =>
+              isLoggedIn
+                ? router.push('/characters/create')
+                : router.push('/login')
+            }
+            bgColor='bg-color-200'
+            hoverColor='hover:hover:bg-color-100'
+            textColor='text-white'
+          >
+            Criar
+          </Button>
+
+          {/* Botão Perfil */}
+          {isLoggedIn ? (
+            <Link href='/profile' className='flex items-center space-x-2'>
+              <FaUserCircle size={24} />
+            </Link>
+          ) : (
+            <Link href='/login' className='text-white hover:text-gray-200'>
+              Login
+            </Link>
+          )}
+
+          {/* Botão Sair */}
+          {isLoggedIn && (
+            <button
+              onClick={handleLogout}
+              className='flex items-center space-x-2 text-white hover:text-gray-200'
+            >
+              <FiLogOut size={24} />
+              <span>Sair</span>
+            </button>
+          )}
         </div>
       </div>
     </header>
