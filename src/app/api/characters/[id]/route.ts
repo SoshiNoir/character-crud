@@ -40,6 +40,23 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     const body = await request.json();
     const { name, profession, likes, dislikes, description, image } = body;
 
+    // Simulação de autenticação: Substitua pelo ID do usuário autenticado
+    const authenticatedUserId = 1; // Exemplo: ID do usuário logado
+
+    // Verifica se o personagem pertence ao usuário autenticado
+    const character = await prisma.character.findUnique({
+      where: { id },
+    });
+
+    if (!character) {
+      return NextResponse.json({ error: 'Personagem não encontrado' }, { status: 404 });
+    }
+
+    if (character.ownerId !== authenticatedUserId) {
+      return NextResponse.json({ error: 'Acesso negado' }, { status: 403 });
+    }
+
+    // Atualiza o personagem
     const updatedCharacter = await prisma.character.update({
       where: { id },
       data: { name, profession, likes, dislikes, description, image },
@@ -61,6 +78,23 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ error: 'ID inválido' }, { status: 400 });
     }
 
+    // Simulação de autenticação: Substitua pelo ID do usuário autenticado
+    const authenticatedUserId = 1; // Exemplo: ID do usuário logado
+
+    // Verifica se o personagem pertence ao usuário autenticado
+    const character = await prisma.character.findUnique({
+      where: { id },
+    });
+
+    if (!character) {
+      return NextResponse.json({ error: 'Personagem não encontrado' }, { status: 404 });
+    }
+
+    if (character.ownerId !== authenticatedUserId) {
+      return NextResponse.json({ error: 'Acesso negado' }, { status: 403 });
+    }
+
+    // Exclui o personagem
     await prisma.character.delete({
       where: { id },
     });

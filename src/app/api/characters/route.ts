@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const search = searchParams.get('search') || ''; 
+  const search = searchParams.get('search') || '';
   const page = parseInt(searchParams.get('page') || '1'); // Captura o parâmetro "page"
   const pageSize = 10; // Define o número de itens por página
 
@@ -43,10 +43,10 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, profession, likes, dislikes, description, image } = body;
+    const { name, profession, likes, dislikes, description, image, ownerId } = body;
 
     // Validação: Verifica se todos os campos obrigatórios estão presentes
-    if (!name || !profession || !likes || !dislikes || !description || !image) {
+    if (!name || !profession || !likes || !dislikes || !description || !image || !ownerId) {
       return NextResponse.json(
         { error: 'Todos os campos são obrigatórios.' },
         { status: 400 }
@@ -61,6 +61,7 @@ export async function POST(request: NextRequest) {
         dislikes,
         description,
         image,
+        ownerId,
       },
     });
 
