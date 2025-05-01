@@ -8,10 +8,13 @@ datasource db {
 }
 
 model User {
-  id       Int     @id @default(autoincrement())
-  email    String  @unique
-  password String
-  characters Character[] // Relacionamento com personagens, se necessário
+  id                Int      @id @default(autoincrement())
+  email             String   @unique
+  password          String
+  confirmationCode  String?  // Código de confirmação (opcional)
+  isConfirmed       Boolean  @default(false) // Status de confirmação
+  createdAt         DateTime @default(now())
+  characters        Character[] // Relacionamento com personagens
 }
 
 model Character {
