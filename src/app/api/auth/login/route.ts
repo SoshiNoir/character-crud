@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import { NextRequest, NextResponse } from 'next/server';
 
 const prisma = new PrismaClient();
-const SECRET_KEY = 'seu-segredo-aqui'; // Substitua por uma chave secreta segura
+const SECRET_KEY = process.env.SECRET_KEY || 'default-secret'; // Use uma chave padrão como fallback
 
 export async function POST(request: NextRequest) {
   const { email, password } = await request.json();
@@ -16,7 +16,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Credenciais inválidas.' }, { status: 401 });
   }
 
-  const token = jwt.sign({ userId: user.id }, SECRET_KEY, { expiresIn: '1h' });
+  const token = jwt.sign(
+    {
+      userId: user.id, // ID do usuário
+      email: user.email, // Email do usuário
+    },
+    SECRET_KEY,
+    { expiresIn: '1h' } // Expiração do token
+  );
 
   return NextResponse.json({ token });
 }
